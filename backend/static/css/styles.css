@@ -1,0 +1,253 @@
+/* OceanEmbed Theme: Abyssal Deep Sea Glassmorphism */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg-abyss: #040812;
+  --bg-ocean-deep: #071022;
+  --bg-ocean-card: rgba(11, 22, 45, 0.75);
+  --bg-card-hover: rgba(18, 36, 72, 0.85);
+  --border-ocean: rgba(56, 189, 248, 0.15);
+  --border-glow: rgba(6, 182, 212, 0.4);
+  --cyan-primary: #00f2fe;
+  --cyan-glow: rgba(0, 242, 254, 0.35);
+  --emerald-accent: #00f5a0;
+  --sapphire-accent: #4facfe;
+  --amber-warning: #f6d365;
+  --rose-error: #ff5858;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-abyss);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 10%, rgba(0, 242, 254, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(0, 245, 160, 0.02) 0%, transparent 60%);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-ocean-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: #173059;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sapphire-accent);
+}
+
+/* Typography & Glows */
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+.glow-cyan {
+  text-shadow: 0 0 16px rgba(0, 242, 254, 0.6);
+}
+.glow-emerald {
+  text-shadow: 0 0 16px rgba(0, 245, 160, 0.6);
+}
+
+/* Glassmorphism */
+.glass-panel {
+  background: var(--bg-ocean-card);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-ocean);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.25s ease;
+}
+.glass-panel:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.glass-panel-glow {
+  background: var(--bg-ocean-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-cyan {
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--cyan-primary);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+.badge-emerald {
+  background: rgba(0, 245, 160, 0.12);
+  color: var(--emerald-accent);
+  border: 1px solid rgba(0, 245, 160, 0.3);
+}
+.badge-amber {
+  background: rgba(246, 211, 101, 0.12);
+  color: var(--amber-warning);
+  border: 1px solid rgba(246, 211, 101, 0.3);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  color: #040812;
+  box-shadow: 0 4px 16px rgba(0, 242, 254, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(0, 242, 254, 0.45);
+}
+.btn-outline {
+  background: rgba(11, 22, 45, 0.8);
+  color: var(--text-main);
+  border-color: var(--border-ocean);
+}
+.btn-outline:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--cyan-primary);
+  color: var(--cyan-primary);
+}
+
+/* Nav Tabs */
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.nav-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+.nav-tab.active {
+  color: var(--cyan-primary);
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+}
+
+/* Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #152744;
+  border-radius: 4px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan-primary);
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--cyan-primary);
+  transition: transform 0.1s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* Canvas Heatmap Styling */
+.ocean-canvas-container {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #020409;
+  border: 1px solid var(--border-ocean);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+.ocean-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: pixelated;
+  cursor: crosshair;
+}
+
+/* Grid coordinate tooltip */
+.crosshair-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(4, 8, 18, 0.92);
+  border: 1px solid var(--cyan-primary);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+  z-index: 50;
+  display: none;
+  transform: translate(12px, -50%);
+}
+
+/* Colormap legend bar */
+.colormap-bar {
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Pulse indicator */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--emerald-accent);
+  box-shadow: 0 0 10px var(--emerald-accent);
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}

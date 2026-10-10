@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OceanEmbed — Satellite Embedding-Based Subsurface Ocean Temperature Reconstruction (SIH 26066)</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <!-- Tailwind CSS Play CDN for instantaneous styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              950: '#040812',
+              900: '#070f1e',
+              850: '#0b162b',
+              800: '#0f203c',
+              700: '#173059',
+              600: '#1f437c',
+              500: '#2b5ea8',
+              400: '#3d82d4',
+              300: '#64a7f3',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#040812] text-slate-100 min-h-screen">
+
+  <!-- TOP HEADER -->
+  <header class="glass-panel border-b border-cyan-500/20 sticky top-0 z-50 px-6 py-3.5 mb-6 backdrop-blur-xl bg-ocean-950/80">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+          <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-sky-200 to-blue-400 bg-clip-text text-transparent">OceanEmbed</h1>
+            <span class="badge badge-cyan">SIH PS 26066</span>
+            <span class="badge badge-emerald">0.25° Daily NIO</span>
+          </div>
+          <p class="text-xs text-slate-400">Satellite Embedding Deep Learning Framework for 3D Subsurface Ocean Temperature Reconstruction</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics & Status -->
+      <div class="flex items-center gap-4 text-xs font-mono">
+        <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+          <div class="pulse-dot"></div>
+          <span class="text-slate-300">Model: <strong class="text-cyan-400 font-semibold">OceanEmbedNet (Hybrid ViT)</strong></span>
+        </div>
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+          <span class="text-slate-300">Domain: <strong class="text-emerald-400">5°N–30°N, 45°E–105°E</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="max-w-7xl mx-auto flex items-center gap-2 mt-3 overflow-x-auto pb-1 border-t border-white/5 pt-2">
+      <button class="nav-tab active" data-tab="dashboard">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+        Executive Mission Control
+      </button>
+      <button class="nav-tab" data-tab="explorer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>
+        2D/3D Ocean Explorer
+      </button>
+      <button class="nav-tab" data-tab="transect">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" /></svg>
+        Vertical Transects
+      </button>
+      <button class="nav-tab" data-tab="embeddings">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+        Latent Satellite Embeddings
+      </button>
+      <button class="nav-tab" data-tab="argo">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        INCOIS ARGO Float Benchmark
+      </button>
+      <button class="nav-tab" data-tab="simulator">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+        What-If Climate Simulator
+      </button>
+      <button class="nav-tab" data-tab="pipeline">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        Data Ingestion Pipeline
+      </button>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-6 pb-16">
+
+    <!-- ======================================================= -->
+    <!-- TAB 1: EXECUTIVE MISSION CONTROL & DASHBOARD -->
+    <!-- ======================================================= -->
+    <div id="view-dashboard" class="tab-view space-y-6">
+      
+      <!-- Top KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="glass-panel p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400 font-medium">Mean Reconst. RMSE</span>
+            <span class="badge badge-emerald">Optimal</span>
+          </div>
+          <div class="text-2xl font-bold font-mono text-glow-emerald text-emerald-400" id="kpi-rmse">0.186 °C</div>
+          <div class="text-[11px] text-slate-400 mt-1">Across 15 vertical depth levels</div>
+        </div>
+
+        <div class="glass-panel p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400 font-medium">Upper-Layer Correlation</span>
+            <span class="badge badge-cyan">0 - 200m</span>
+          </div>
+          <div class="text-2xl font-bold font-mono text-glow-cyan text-cyan-400" id="kpi-corr">0.988</div>
+          <div class="text-[11px] text-slate-400 mt-1">Pearson correlation coeff (r)</div>
+        </div>
+
+        <div class="glass-panel p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400 font-medium">Thermocline D20 Error</span>
+            <span class="badge badge-amber">Isotherm</span>
+          </div>
+          <div class="text-2xl font-bold font-mono text-amber-300" id="kpi-d20">3.25 m</div>
+          <div class="text-[11px] text-slate-400 mt-1">Depth error for 20°C boundary</div>
+        </div>
+
+        <div class="glass-panel p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400 font-medium">In-Situ ARGO Floats</span>
+            <span class="badge badge-cyan">INCOIS</span>
+          </div>
+          <div class="text-2xl font-bold font-mono text-slate-100" id="kpi-argo">360 Floats</div>
+          <div class="text-[11px] text-slate-400 mt-1">Independent CTD profiles</div>
+        </div>
+
+        <div class="glass-panel p-4 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs text-slate-400 font-medium">ARGO Validation RMSE</span>
+            <span class="badge badge-emerald">r = 0.9998</span>
+          </div>
+          <div class="text-2xl font-bold font-mono text-emerald-400" id="kpi-argo-rmse">0.225 °C</div>
+          <div class="text-[11px] text-slate-400 mt-1">True in-situ observation match</div>
+        </div>
+      </div>
+
+      <!-- Problem Statement & Architecture Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Problem Statement & Physics Summary -->
+        <div class="glass-panel p-6 lg:col-span-1 space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">PS</div>
+            <h3 class="text-lg font-bold text-slate-100">SIH 2026 Problem ID 26066</h3>
+          </div>
+          
+          <p class="text-xs leading-relaxed text-slate-300">
+            Subsurface ocean temperature is vital for upper-ocean heat content, marine heatwaves, and monsoons. In-situ ARGO measurements are spatially sparse.
+          </p>
+          <p class="text-xs leading-relaxed text-slate-300">
+            <strong>OceanEmbed</strong> transforms 7 surface satellite observation channels (SST, SSS, SSH, OSCAR Currents, CCMP Winds) into compact 256-D latent ocean embeddings, predicting the complete 3D vertical temperature profile across 15 standard depth levels (0m to 1000m) over the North Indian Ocean at 0.25° daily resolution.
+          </p>
+
+          <div class="pt-3 border-t border-white/10 space-y-2">
+            <div class="flex justify-between text-xs"><span class="text-slate-400">Target Region:</span><span class="font-mono text-cyan-300">5°N–30°N, 45°E–105°E</span></div>
+            <div class="flex justify-between text-xs"><span class="text-slate-400">Resolution:</span><span class="font-mono text-cyan-300">0.25° × 0.25° (101 × 241)</span></div>
+            <div class="flex justify-between text-xs"><span class="text-slate-400">Active Ocean Cells:</span><span class="font-mono text-cyan-300">11,742 water points</span></div>
+            <div class="flex justify-between text-xs"><span class="text-slate-400">Ground Truth Reanalysis:</span><span class="font-mono text-cyan-300">GLORYS12V1 (50 levels)</span></div>
+            <div class="flex justify-between text-xs"><span class="text-slate-400">Validation Benchmark:</span><span class="font-mono text-cyan-300">INCOIS Gridded ARGO LAS</span></div>
+          </div>
+        </div>
+
+        <!-- Right: End-to-End Deep Learning Architecture -->
+        <div class="glass-panel p-6 lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-100">OceanEmbed Deep Learning Architecture</h3>
+            <span class="badge badge-cyan">Hybrid ViT / Residual CNN</span>
+          </div>
+
+          <!-- Visual Architecture Pipeline Diagram -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+            
+            <div class="p-3 rounded-lg bg-ocean-900 border border-cyan-500/20">
+              <div class="font-bold text-cyan-400 mb-1">1. Surface Inputs (7 Ch)</div>
+              <ul class="text-[11px] text-slate-300 space-y-0.5 list-disc pl-3">
+                <li>OSTIA SST (0.05°→0.25°)</li>
+                <li>SMAP SSS (0.125°→0.25°)</li>
+                <li>DUACS SSH / SLA (0.25°)</li>
+                <li>OSCAR Currents (U, V)</li>
+                <li>ASCAT/CCMP Winds (U, V)</li>
+                <li>CoordConv (Lat, Lon)</li>
+              </ul>
+            </div>
+
+            <div class="p-3 rounded-lg bg-ocean-900 border border-blue-500/20">
+              <div class="font-bold text-sky-400 mb-1">2. Latent Encoder</div>
+              <p class="text-[11px] text-slate-300 mb-1">CoordConv + Multi-Scale Residual CNN + Window Self-Attention.</p>
+              <div class="badge badge-cyan text-[10px] w-full justify-center">256-D Latent Embedding</div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-ocean-900 border border-purple-500/20">
+              <div class="font-bold text-purple-400 mb-1">3. Depth-Attention Decoder</div>
+              <p class="text-[11px] text-slate-300 mb-1">Hierarchical multi-scale upsampler with Depth-Wise Cross-Attention weights.</p>
+              <div class="text-[10px] text-purple-300">Physics-informed Loss (dT/dz)</div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-ocean-900 border border-emerald-500/20">
+              <div class="font-bold text-emerald-400 mb-1">4. Reconstructed 3D Field</div>
+              <p class="text-[11px] text-slate-300 mb-1">15 standard ocean depths:</p>
+              <div class="text-[10px] font-mono text-emerald-300">[0, 5, 10, 20, 30, 50, 75, 100, 125, 150, 200, 300, 500, 700, 1000] meters</div>
+            </div>
+
+          </div>
+
+          <!-- Benchmark Comparison Table -->
+          <div class="pt-3">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Framework Benchmark vs Baselines</h4>
+            <div class="overflow-x-auto rounded-lg border border-white/10">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-white/5 text-slate-400 border-b border-white/10 font-mono">
+                  <tr>
+                    <th class="py-2.5 px-4">Architecture</th>
+                    <th class="py-2.5 px-4">Category</th>
+                    <th class="py-2.5 px-4">Mean RMSE</th>
+                    <th class="py-2.5 px-4">Upper-200m Corr</th>
+                    <th class="py-2.5 px-4">D20 Error</th>
+                    <th class="py-2.5 px-4">Inference Latency</th>
+                  </tr>
+                </thead>
+                <tbody id="benchmarks-table-body" class="divide-y divide-white/5">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Depth-Wise Performance Breakdown -->
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold text-slate-100">Depth-Wise Reconstruction Performance (0m to 1000m)</h3>
+            <p class="text-xs text-slate-400">Validated across North Indian Ocean test snapshots against GLORYS12V1 target reanalysis</p>
+          </div>
+          <button class="btn btn-outline text-xs" onclick="switchTab('explorer')">Explore 3D Slices →</button>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-white/10">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white/5 text-slate-400 border-b border-white/10 font-mono">
+              <tr>
+                <th class="py-2.5 px-4">Depth Level</th>
+                <th class="py-2.5 px-4">RMSE (°C)</th>
+                <th class="py-2.5 px-4">Pearson Correlation (r)</th>
+                <th class="py-2.5 px-4">Mean Bias (°C)</th>
+                <th class="py-2.5 px-4">Mean Absolute Error (°C)</th>
+              </tr>
+            </thead>
+            <tbody id="metrics-table-body" class="divide-y divide-white/5 font-mono">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 2: 2D/3D OCEAN EXPLORER -->
+    <!-- ======================================================= -->
+    <div id="view-explorer" class="tab-view space-y-6" style="display:none;">
+      
+      <!-- Explorer Toolbar & Filters -->
+      <div class="glass-panel p-4 flex flex-wrap items-center justify-between gap-4">
+        
+        <!-- Left: Variable and Depth Selectors -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Variable Channel</label>
+            <select id="var-select" class="bg-ocean-900 border border-cyan-500/30 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 font-medium">
+              <option value="temperature" selected>Subsurface Temperature (3D)</option>
+              <option value="sst">OSTIA Sea Surface Temp (SST)</option>
+              <option value="sss">SMAP Sea Surface Salinity (SSS)</option>
+              <option value="ssh">DUACS Sea Surface Height / SLA</option>
+              <option value="u_curr">OSCAR Zonal Current (U)</option>
+              <option value="v_curr">OSCAR Meridional Current (V)</option>
+              <option value="u_wind">CCMP Zonal Wind (U)</option>
+              <option value="v_wind">CCMP Meridional Wind (V)</option>
+            </select>
+          </div>
+
+          <div id="depth-select-container">
+            <label class="text-[11px] text-slate-400 block mb-1">Depth Level</label>
+            <select id="depth-select" class="bg-ocean-900 border border-cyan-500/30 rounded-lg px-3 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 font-medium font-mono">
+              <option value="0">0 m (Surface)</option>
+              <option value="5">5 m</option>
+              <option value="10">10 m</option>
+              <option value="20">20 m</option>
+              <option value="30">30 m (Mixed Layer)</option>
+              <option value="50">50 m</option>
+              <option value="75">75 m</option>
+              <option value="100" selected>100 m (Thermocline Core)</option>
+              <option value="125">125 m</option>
+              <option value="150">150 m</option>
+              <option value="200">200 m</option>
+              <option value="300">300 m (Upper Mesopelagic)</option>
+              <option value="500">500 m</option>
+              <option value="700">700 m</option>
+              <option value="1000">1000 m (Abyssal Deep)</option>
+            </select>
+          </div>
+
+          <!-- Mode buttons -->
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Display Mode</label>
+            <div class="flex items-center gap-1">
+              <button class="btn btn-primary text-xs py-1.5 px-3 mode-btn" data-mode="pred">Predicted</button>
+              <button class="btn btn-outline text-xs py-1.5 px-3 mode-btn" data-mode="target">GLORYS Target</button>
+              <button class="btn btn-outline text-xs py-1.5 px-3 mode-btn" data-mode="error">Residual Error</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Colormap & Date Timeline Slider -->
+        <div class="flex flex-wrap items-center gap-4">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Colormap</label>
+            <select id="cmap-select" class="bg-ocean-900 border border-white/20 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">
+              <option value="thermal" selected>Thermal (Oceanographic)</option>
+              <option value="turbo">Turbo (Rainbow)</option>
+              <option value="coolwarm">Coolwarm (Anomalies)</option>
+              <option value="viridis">Viridis (Perceptual)</option>
+            </select>
+          </div>
+
+          <div class="w-48">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Time Snapshot</span>
+              <span id="day-slider-val" class="font-mono text-cyan-400 font-bold">Day +1 Snapshot</span>
+            </div>
+            <input type="range" id="day-slider" min="0" max="17" value="0" step="1">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Explorer Layout: 2D Canvas Map + Profile Inspector -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: 2D Interactive Ocean Map Canvas (7 cols) -->
+        <div class="glass-panel p-5 lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="pulse-dot"></span>
+              <h3 class="font-bold text-sm text-slate-100">North Indian Ocean (5°N–30°N, 45°E–105°E)</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">101 × 241 Grid Points</span>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="ocean-canvas-container">
+            <canvas id="ocean-canvas" class="ocean-canvas"></canvas>
+            <div id="canvas-tooltip" class="crosshair-tooltip"></div>
+          </div>
+
+          <!-- Colormap Legend & Range Bar -->
+          <div class="flex items-center justify-between text-xs font-mono text-slate-400 pt-1">
+            <span id="slice-min-val">0.00 °C</span>
+            <div class="w-48 h-3 rounded colormap-bar bg-gradient-to-r from-blue-700 via-cyan-400 via-amber-400 to-rose-600"></div>
+            <span id="slice-max-val">32.00 °C</span>
+          </div>
+
+          <div class="p-3 rounded-lg bg-white/5 border border-white/10 text-xs flex justify-between items-center text-slate-300">
+            <span>Mean Domain Field Value: <strong id="slice-mean-val" class="text-cyan-300 font-mono">28.4 °C</strong></span>
+            <span class="text-[11px] text-slate-400">💡 Click anywhere on water to plot vertical temperature profile</span>
+          </div>
+        </div>
+
+        <!-- Right: Interactive 1D Vertical Profile Inspector (5 cols) -->
+        <div class="glass-panel p-5 lg:col-span-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div>
+              <span class="text-xs text-slate-400">Inspected Coordinate</span>
+              <div class="font-bold font-mono text-base text-cyan-400" id="profile-coord-label">15.00°N, 70.00°E</div>
+            </div>
+            <div id="profile-ocean-badge">
+              <span class="badge badge-emerald">Ocean Cell</span>
+            </div>
+          </div>
+
+          <!-- Canvas Chart for Vertical CTD Profile -->
+          <div class="flex justify-center">
+            <canvas id="profile-chart-canvas" class="w-full max-w-[440px] h-[320px]"></canvas>
+          </div>
+
+          <!-- Chart Legend -->
+          <div class="flex flex-wrap items-center justify-center gap-4 text-xs">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-[#ff5858]"></span><span class="text-slate-200">OceanEmbed (Pred)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-[#4facfe]"></span><span class="text-slate-200">GLORYS Reanalysis</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#00f5a0]"></span><span class="text-slate-200" id="argo-match-info">ARGO Match</span></div>
+          </div>
+
+          <!-- Physical Diagnostics Grid -->
+          <div class="grid grid-cols-2 gap-3 pt-2 text-xs font-mono">
+            <div class="p-2.5 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-[11px] text-slate-400 block">D20 Thermocline (Pred)</span>
+              <span class="text-sm font-bold text-amber-300" id="prof-d20-pred">94.5 m</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-[11px] text-slate-400 block">D20 Thermocline (Target)</span>
+              <span class="text-sm font-bold text-cyan-300" id="prof-d20-target">92.0 m</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-[11px] text-slate-400 block">Surface SST / SSS</span>
+              <span class="text-slate-200 font-bold" id="prof-sst-val">28.5°C</span> / <span class="text-slate-300" id="prof-sss-val">35.2 PSU</span>
+            </div>
+            <div class="p-2.5 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-[11px] text-slate-400 block">SSH / 10m Winds</span>
+              <span class="text-slate-200 font-bold" id="prof-ssh-val">+0.04 m</span> / <span class="text-slate-300" id="prof-wind-val">2.1 m/s</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 3: VERTICAL TRANSECTS & CROSS-SECTIONS -->
+    <!-- ======================================================= -->
+    <div id="view-transect" class="tab-view space-y-6" style="display:none;">
+      
+      <div class="glass-panel p-4 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Transect Axis</label>
+            <select id="transect-axis" class="bg-ocean-900 border border-cyan-500/30 rounded-lg px-3 py-1.5 text-xs text-slate-100">
+              <option value="lat" selected>Zonal Cross-Section (Constant Latitude)</option>
+              <option value="lon">Meridional Cross-Section (Constant Longitude)</option>
+            </select>
+          </div>
+
+          <div class="w-64">
+            <div class="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Coordinate Position</span>
+              <span id="transect-coord-val" class="font-mono text-cyan-400 font-bold">15.0°N</span>
+            </div>
+            <input type="range" id="transect-coord" min="5" max="30" value="15" step="0.25">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="btn btn-outline text-xs" onclick="appState.transectCoord=14.0; document.getElementById('transect-coord').value=14; loadAndRenderTransect();">Arabian Upwelling (14°N)</button>
+          <button class="btn btn-outline text-xs" onclick="appState.transectCoord=6.0; document.getElementById('transect-coord').value=6; loadAndRenderTransect();">Equatorial Jet (6°N)</button>
+          <button class="btn btn-outline text-xs" onclick="appState.transectCoord=18.0; document.getElementById('transect-coord').value=18; loadAndRenderTransect();">Bay of Bengal (18°N)</button>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-base text-slate-100">Depth vs Coordinate Vertical Cross-Section (0m to 1000m)</h3>
+            <p class="text-xs text-slate-400">Reconstructed 3D thermal stratification, thermocline steepness, and mesoscale eddy bowls</p>
+          </div>
+        </div>
+
+        <div class="ocean-canvas-container p-2">
+          <canvas id="transect-canvas" class="w-full h-[280px] block"></canvas>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 pt-2 text-xs">
+          <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+            <span class="font-bold text-cyan-400 block mb-1">Thermocline Layer</span>
+            <p class="text-slate-300 text-[11px]">Rapid vertical temperature drop between 50m and 150m representing the active pycnocline.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+            <span class="font-bold text-amber-400 block mb-1">Eddy & Upwelling Signature</span>
+            <p class="text-slate-300 text-[11px]">Isotherm doming indicates cyclonic cold-core upwelling eddies driven by monsoon wind stress.</p>
+          </div>
+          <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+            <span class="font-bold text-slate-300 block mb-1">Abyssal Stability</span>
+            <p class="text-slate-300 text-[11px]">Deep layers asymptotically approach 4.5°C–6.0°C below 700m depth with minimal error.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 4: LATENT SATELLITE EMBEDDINGS -->
+    <!-- ======================================================= -->
+    <div id="view-embeddings" class="tab-view space-y-6" style="display:none;">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Embedding Channels Grid (7 cols) -->
+        <div class="glass-panel p-6 lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-base text-slate-100">256-D Latent Satellite Embeddings</h3>
+              <p class="text-xs text-slate-400">Top principal latent activation channels learned by the Hybrid ViT/ResNet encoder</p>
+            </div>
+            <span class="badge badge-cyan">256 Channels</span>
+          </div>
+
+          <div id="embedding-channels-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Right: Depth Attention Weights & Water Mass Clusters (5 cols) -->
+        <div class="glass-panel p-6 lg:col-span-5 space-y-4">
+          <div>
+            <h3 class="font-bold text-base text-slate-100">Depth-Wise Cross Attention Weights</h3>
+            <p class="text-xs text-slate-400">Learned relative influence of surface variables across reconstruction depths</p>
+          </div>
+
+          <div id="attention-weights-list" class="space-y-2 pt-2">
+            <!-- Loaded dynamically -->
+          </div>
+
+          <div class="flex items-center justify-center gap-3 text-[11px] pt-2 border-t border-white/10">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-500"></span> SST</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-400"></span> SSS</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-cyan-400"></span> SSH</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-400"></span> Currents</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-indigo-400"></span> Winds</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 5: INCOIS ARGO FLOAT BENCHMARK -->
+    <!-- ======================================================= -->
+    <div id="view-argo" class="tab-view space-y-6" style="display:none;">
+      
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-base text-slate-100">INCOIS ARGO In-Situ Float Validation Suite</h3>
+            <p class="text-xs text-slate-400">Direct CTD profiling float comparisons across the Arabian Sea and Bay of Bengal</p>
+          </div>
+          <span class="badge badge-emerald">360 In-Situ Profiles</span>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-white/10">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-white/5 text-slate-400 border-b border-white/10 font-mono">
+              <tr>
+                <th class="py-2.5 px-3">Float ID</th>
+                <th class="py-2.5 px-3">Location</th>
+                <th class="py-2.5 px-3">Surface (0m)</th>
+                <th class="py-2.5 px-3">Thermocline (100m)</th>
+                <th class="py-2.5 px-3">Deep (1000m)</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="argo-floats-table" class="divide-y divide-white/5">
+              <!-- Loaded dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 6: WHAT-IF OCEAN CLIMATE SIMULATOR -->
+    <!-- ======================================================= -->
+    <div id="view-simulator" class="tab-view space-y-6" style="display:none;">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Climate Sliders (5 cols) -->
+        <div class="glass-panel p-6 lg:col-span-5 space-y-5">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div>
+              <h3 class="font-bold text-base text-slate-100">What-If Perturbation Studio</h3>
+              <p class="text-xs text-slate-400">Simulate climate warming, monsoon wind surges, and cyclonic SLA depressions</p>
+            </div>
+            <span class="badge badge-amber">PyTorch Live</span>
+          </div>
+
+          <!-- Slider 1: SST Warming -->
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-1.5">
+              <span class="text-slate-300">Sea Surface Temperature (ΔSST)</span>
+              <span id="sim-sst-val" class="text-rose-400 font-bold">+1.5°C</span>
+            </div>
+            <input type="range" id="sim-sst" min="-3" max="4" value="1.5" step="0.25">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>-3.0°C (Cooling)</span><span>0°C</span><span>+4.0°C (Extreme MHW)</span></div>
+          </div>
+
+          <!-- Slider 2: Sea Surface Height Anomaly -->
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-1.5">
+              <span class="text-slate-300">Sea Level Anomaly (ΔSSH)</span>
+              <span id="sim-ssh-val" class="text-cyan-400 font-bold">+0.05m</span>
+            </div>
+            <input type="range" id="sim-ssh" min="-0.2" max="0.3" value="0.05" step="0.01">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>-0.20m (Cyclonic)</span><span>0m</span><span>+0.30m (Anticyclonic)</span></div>
+          </div>
+
+          <!-- Slider 3: Wind Stress Multiplier -->
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-1.5">
+              <span class="text-slate-300">Monsoon Wind Stress Factor</span>
+              <span id="sim-wind-val" class="text-emerald-400 font-bold">120%</span>
+            </div>
+            <input type="range" id="sim-wind" min="0.5" max="2.5" value="1.2" step="0.1">
+            <div class="flex justify-between text-[10px] text-slate-500 mt-1"><span>50% (Weak)</span><span>100% (Baseline)</span><span>250% (Cyclone Surge)</span></div>
+          </div>
+
+          <!-- Submit Button -->
+          <button id="run-sim-btn" class="btn btn-primary w-full py-3 text-sm font-bold shadow-lg shadow-cyan-500/20">
+            ⚡ Run Deep Learning Model Forward Pass
+          </button>
+        </div>
+
+        <!-- Right: Subsurface Impact Results (7 cols) -->
+        <div class="glass-panel p-6 lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 class="font-bold text-base text-slate-100">Subsurface Thermal Propagation Response</h3>
+            <span class="badge badge-cyan">3D Field Output</span>
+          </div>
+
+          <!-- Impact Metrics Grid -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
+            <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-slate-400 text-[10px] block">Surface ΔT</span>
+              <span id="sim-delta-surface" class="text-base font-bold text-rose-400">+1.50 °C</span>
+            </div>
+            <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-slate-400 text-[10px] block">Thermocline ΔT (100m)</span>
+              <span id="sim-delta-thermo" class="text-base font-bold text-amber-400">+0.82 °C</span>
+            </div>
+            <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-slate-400 text-[10px] block">Deep Ocean ΔT (1000m)</span>
+              <span id="sim-delta-deep" class="text-base font-bold text-slate-300">+0.01 °C</span>
+            </div>
+            <div class="p-3 rounded-lg bg-ocean-900 border border-white/10">
+              <span class="text-slate-400 text-[10px] block">Penetration Depth</span>
+              <span id="sim-penetration" class="text-base font-bold text-cyan-400">150 meters</span>
+            </div>
+          </div>
+
+          <!-- Key Regional Stations Response -->
+          <div class="space-y-3 pt-2">
+            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Regional Regimes Subsurface Response</h4>
+            <div id="sim-stations-container" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================= -->
+    <!-- TAB 7: DATA INGESTION & HARMONIZATION PIPELINE -->
+    <!-- ======================================================= -->
+    <div id="view-pipeline" class="tab-view space-y-6" style="display:none;">
+      
+      <div class="glass-panel p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-bold text-base text-slate-100">Multi-Source Satellite Preprocessing & Harmonization Pipeline</h3>
+            <p class="text-xs text-slate-400">Automated ingestion, regridding, interpolation, and quality control compliant with SIH PS 26066</p>
+          </div>
+          <span class="badge badge-emerald">Operational</span>
+        </div>
+
+        <div id="pipeline-sources-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Loaded dynamically -->
+        </div>
+
+        <div class="p-4 rounded-xl bg-ocean-900 border border-cyan-500/20 text-xs space-y-2 mt-4">
+          <div class="font-bold text-cyan-300">Technical Note on Spatial & Temporal Alignment:</div>
+          <p class="text-slate-300 leading-relaxed">
+            All satellite input products (OSTIA at 0.05°, SMAP at 0.125°, DUACS at 0.25°, OSCAR at 0.25°, ASCAT/CCMP 6-hourly) are regridded onto the common North Indian Ocean 0.25° × 0.25° grid [5°N–30°N, 45°E–105°E] using bilinear interpolation with land-mask preservation and 24-hour temporal averaging. CoordConv channels are injected to provide explicit spatial coordinates to the deep neural network.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="border-t border-white/5 py-6 text-center text-xs text-slate-500 font-mono">
+    OceanEmbed Platform — Smart India Hackathon (SIH) 2026 Problem Statement ID 26066 | Developed with PyTorch & FastAPI
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
